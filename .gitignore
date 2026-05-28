@@ -64,6 +64,7 @@ CLAUDE.md
 /services/helper/target
 /macos.old/**/Package.resolved
 devtools_options.yaml
+env.json
 
 # FVM Version Cache
 .fvm/

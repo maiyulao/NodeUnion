@@ -1,4 +1,18 @@
 {
   "airportName": "一键连",
-  "airportUrl": "https://example.com/dashboard"
+  "airportUrl": "https://onetaplink.top",
+   "ads": {
+    "enabled": false,
+    "bannerAndroid": "ca-app-pub-8846782544598831/7185700926",
+    "bannerIos": "...",
+    "interstitialAndroid": "ca-app-pub-8846782544598831/9026911571",
+    "interstitialIos": "...",
+    "nativeAndroid": "ca-app-pub-8846782544598831/3246455911",
+    "nativeIos": "...",
+    "appOpenAndroid": "ca-app-pub-8846782544598831/7682040314",
+    "appOpenIos": "...",
+    "interstitialDelaySeconds": 8,
+    "interstitialCooldownSeconds": 180,
+    "appOpenCooldownSeconds": 240
+  }
 }

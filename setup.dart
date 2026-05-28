@@ -412,11 +412,28 @@ class BuildCommand extends Command {
       .toList();
 
   Future<void> _buildEnvFile(String env, {String? coreSha256}) async {
-    final data = {
-      'APP_ENV': env,
-      if (coreSha256 != null) 'CORE_SHA256': coreSha256,
-    };
-    final envFile = File(join(current, 'env.json'))..create();
+    final envFile = File(join(current, 'env.json'));
+    final data = <String, dynamic>{'APP_ENV': env};
+
+    if (await envFile.exists()) {
+      try {
+        final existing = json.decode(await envFile.readAsString());
+        if (existing is Map<String, dynamic>) {
+          for (final key in ['BRAND_CONFIG_URLS', 'BRAND_CONFIG_KEY']) {
+            final value = existing[key];
+            if (value is String && value.isNotEmpty) {
+              data[key] = value;
+            }
+          }
+        }
+      } catch (_) {}
+    }
+
+    if (coreSha256 != null) {
+      data['CORE_SHA256'] = coreSha256;
+    }
+
+    await envFile.create(recursive: true);
     await envFile.writeAsString(json.encode(data));
   }
 

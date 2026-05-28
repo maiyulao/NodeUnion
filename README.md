@@ -1,78 +1,191 @@
 # NodeUnion
 
-基于 [FlClash](https://github.com/chen08209/FlClash) 二次开发的机场代理客户端，使用 Clash.Meta (mihomo) 内核，支持 Android、iOS、macOS、Windows 和 Linux。
+A cross-platform proxy client forked from [FlClash](https://github.com/chen08209/FlClash), tailored for proxy-provider (“airport”) operators. It keeps the full Clash.Meta (mihomo) stack while adding a remote brand config for the provider portal and optional ads.
 
-## 特性
+**Languages:** [中文](README.zh.md) · English
 
-- 继承 FlClash 的完整代理能力：配置管理、节点选择、规则/DNS、流量统计等
-- **内置机场 WebView**：通过远程品牌配置加载机场服务页面
-- **远程品牌配置**：编译时注入加密配置 URL，支持多源竞速拉取
-- 多语言支持：中文、英文、日文、俄文
+Official Telegram: [t.me/NodeUnion](http://t.me/NodeUnion)
 
-## 与 FlClash 的关系
+| Platform | Support |
+|----------|---------|
+| Android | ✅ |
+| macOS | ✅ |
+| Windows | ✅ |
+| Linux | ✅ |
+| iOS | Not supported yet |
 
-本项目 fork 自 FlClash，在保留其核心功能的基础上，增加了机场场景所需的远程品牌配置与 WebView 集成。原项目致谢见应用内「关于」页面。
+## Features
 
-## 构建
+- **Full proxy stack**: profile import/edit, nodes and policy groups, rules and DNS, connections and traffic stats (inherited from FlClash)
+- **Built-in provider WebView**: loads the provider site from brand config; navigation can show a custom provider name
+- **Remote brand config**: compile-time injection of encrypted config URLs and key; multi-CDN racing fetch with local cache
+- **Optional AdMob**: remotely toggle banner, interstitial, native, and app-open ads plus cooldown rules via brand config
+- **i18n**: Chinese, English, Japanese, Russian
 
-### 环境要求
+## Relationship to FlClash
 
-- Flutter SDK >= 3.8.0
-- Go（用于编译内核）
-- 各平台原生构建工具链
+This project forks FlClash and adds a provider WebView, brand configuration, and ad modules on top of the core proxy stack. Credits and dependency notes are in the in-app About screen. When using or redistributing, comply with FlClash, Clash.Meta, and related dependency licenses.
 
-### 基础构建
+## Quick start
+
+### Requirements
+
+- [Flutter](https://flutter.dev/) SDK **>= 3.8.0**
+- [Go](https://go.dev/) (to build the Clash.Meta core)
+- Native toolchains for your target platform (Android SDK, Visual Studio, Xcode for macOS desktop, etc.)
+
+### Clone and dependencies
 
 ```bash
+git clone https://github.com/maiyulao/NodeUnion.git
+cd NodeUnion
 flutter pub get
-dart run setup.dart
-flutter build apk
 ```
 
-### 品牌配置（BrandConfig）
+### Build the core
 
-编译时需通过 `--dart-define` 注入远程品牌配置参数：
+On first build or after updating the `core/` submodule, compile the native core:
 
 ```bash
-flutter build apk \
-  --dart-define=BRAND_CONFIG_URLS=https://example.com/config1.json,https://example.com/config2.json \
-  --dart-define=BRAND_CONFIG_KEY=your_hex_encryption_key
+dart run setup.dart android   # or linux / windows / macos
 ```
 
-| 参数 | 说明 |
-|------|------|
-| `BRAND_CONFIG_URLS` | 逗号分隔的配置 URL 列表，支持多源竞速 |
-| `BRAND_CONFIG_KEY` | AES 解密密钥（十六进制字符串） |
+`setup.dart` builds Clash.Meta and creates/updates `env.json` (see below).
 
-配置 JSON 格式：
+### Run locally
+
+Without brand defines, proxy features still work, but the Airport tab shows a not-configured state:
+
+```bash
+flutter run
+```
+
+## Brand configuration (BrandConfig)
+
+Brand config delivers the provider display name, portal URL, and optional ad settings. Values are injected at **compile time** via `--dart-define`; at runtime the app fetches **AES-GCM encrypted** JSON from remote URLs.
+
+### 1. Prepare plain JSON
+
+Copy the example and edit as needed:
+
+```bash
+cp brand.plain.json.example brand.plain.json
+```
+
+Plain JSON fields:
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `airportName` | string | Provider name shown in the UI (e.g. navigation) |
+| `airportUrl` | string | Provider portal URL (`http` / `https`) |
+| `ads` | object | Optional AdMob unit IDs and display policy; default `enabled: false` |
+
+See `lib/models/brand_config_ads.dart` and `brand.plain.json.example` for `ads` subfields.
+
+### 2. Encrypt and deploy
+
+Encrypt with the bundled tool (**64 hex characters** = 32-byte AES-256 key):
+
+```bash
+dart run tools/encrypt_brand_config.dart \
+  -i brand.plain.json \
+  -k <your-64-hex-key> \
+  -o brand.json
+```
+
+Upload `brand.json` to a CDN or static host. **Do not commit** `brand.plain.json`, `env.json`, or keys to Git (listed in `.gitignore`).
+
+### 3. Local builds: env.json
+
+Copy the env template:
+
+```bash
+cp env.json.example env.json
+```
+
+Edit `env.json`:
 
 ```json
 {
-  "airportName": "机场名称",
-  "airportUrl": "https://example.com"
+  "APP_ENV": "pre",
+  "BRAND_CONFIG_URLS": "https://cdn-a.example.com/brand.json,https://cdn-b.example.com/brand.json",
+  "BRAND_CONFIG_KEY": "<64-hex-aes-key>"
 }
 ```
 
-### Android Release 签名
+- `BRAND_CONFIG_URLS`: comma-separated encrypted config URLs; the client requests them in parallel and uses the first successful response
+- `BRAND_CONFIG_KEY`: the same hex key used when encrypting
 
-1. 复制 `android/key.properties.example` 为 `android/key.properties`
-2. 填入 keystore 路径与密码
-3. 执行 `flutter build apk --release`
+Build with `dart-define-from-file`:
 
-未配置 `key.properties` 时，Release 构建将回退到 debug 签名（仅供本地测试）。
-
-## CI 示例
-
-```yaml
-- name: Build APK
-  run: |
-    flutter pub get
-    dart run setup.dart
-    flutter build apk --release \
-      --dart-define=BRAND_CONFIG_URLS=${{ secrets.BRAND_CONFIG_URLS }} \
-      --dart-define=BRAND_CONFIG_KEY=${{ secrets.BRAND_CONFIG_KEY }}
+```bash
+dart run setup.dart android
+flutter build apk --release --dart-define-from-file=env.json
 ```
 
-## 许可证
+Or pass defines directly:
 
-本项目基于 FlClash 二次开发，请遵循原项目及相关依赖的开源许可证。
+```bash
+flutter build apk --release \
+  --dart-define=BRAND_CONFIG_URLS=https://cdn.example.com/brand.json \
+  --dart-define=BRAND_CONFIG_KEY=<64-hex-key>
+```
+
+### 4. Android release signing
+
+```bash
+cp android/key.properties.example android/key.properties
+# Edit keystore path and passwords
+flutter build apk --release --dart-define-from-file=env.json
+```
+
+Without `key.properties`, release builds fall back to the debug keystore — **local testing only**.
+
+## Platform builds
+
+After running `dart run setup.dart <platform>`:
+
+| Platform | Example command |
+|----------|-----------------|
+| Android APK | `dart run setup.dart android` |
+| Windows | `dart run setup.dart windows` |
+| Linux | `dart run setup.dart linux` |
+| macOS | `dart run setup.dart macos` |
+
+`setup.dart` uses [flutter_distributor](https://github.com/leanflutter/flutter_distributor) to produce artifacts (`apk`, `exe`, `deb`, `dmg`, etc.) and passes `dart-define` values from `env.json` into the Flutter build.
+
+Core only, no app package:
+
+```bash
+dart run setup.dart android --out=core
+```
+
+## Project layout (excerpt)
+
+```
+├── core/                 # Clash.Meta (mihomo) submodule and Go build
+├── lib/                  # Flutter app
+│   ├── common/brand.dart # compile-time brand constants
+│   ├── providers/        # brand config fetch and state
+│   └── views/            # includes airport_webview
+├── setup.dart            # core build and packaging entry
+├── tools/
+│   └── encrypt_brand_config.dart
+├── brand.plain.json.example
+└── env.json.example
+```
+
+## Security and compliance
+
+- **Secrets and plain config**: `env.json`, `brand.json`, and `brand.plain.json` are gitignored; verify no real keys were committed before publishing
+- **Ads**: enabling AdMob requires app and ad units in the Google AdMob console, plus the app ID in `AndroidManifest.xml` (see existing placeholders in the project)
+- **License**: the Clash.Meta core is [GPL-3.0](https://github.com/MetaCubeX/mihomo/blob/main/LICENSE); redistribution and modifications must comply with GPL and FlClash upstream terms
+
+## Acknowledgments
+
+- [FlClash](https://github.com/chen08209/FlClash) — upstream UI and architecture
+- [Clash.Meta / mihomo](https://github.com/MetaCubeX/mihomo) — proxy core
+
+## License
+
+This project is derived from FlClash. Follow the open-source licenses of FlClash, Clash.Meta (mihomo), and all dependencies. Perform your own compliance review before public release or commercial distribution.

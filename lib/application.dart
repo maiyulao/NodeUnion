@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:jichanglianmeng/common/admob.dart';
 import 'package:jichanglianmeng/common/common.dart';
 import 'package:jichanglianmeng/core/core.dart';
 import 'package:jichanglianmeng/l10n/l10n.dart';
@@ -79,13 +80,14 @@ class ApplicationState extends ConsumerState<Application> {
   }
 
   Widget _buildState({required Widget child}) {
-    return AppStateManager(
+    final stateChild = AppStateManager(
       child: CoreManager(
         child: ConnectivityManager(
           onConnectivityChanged: (results) async {
             commonPrint.log('connectivityChanged ${results.toString()}');
             appController.updateLocalIp();
             final hasVpn = results.contains(ConnectivityResult.vpn);
+            ref.read(hasSystemVpnProvider.notifier).setHasVpn(hasVpn);
             if (_preHasVpn == hasVpn) {
               appController.addCheckIp();
             }
@@ -95,6 +97,10 @@ class ApplicationState extends ConsumerState<Application> {
         ),
       ),
     );
+    if (AdMobConfig.isSupportedPlatform) {
+      return AdManager(child: stateChild);
+    }
+    return stateChild;
   }
 
   Widget _buildPlatformApp({required Widget child}) {

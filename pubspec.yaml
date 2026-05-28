@@ -81,6 +81,7 @@ dependencies:
       url: https://github.com/chen08209/yaml_writer
       ref: 79c78a44ec9c2f5f5f97da1a65610c6fb2ead8b3
   super_sliver_list: ^0.4.1
+  google_mobile_ads: ^6.0.0
 
   drift: ^2.29.0
   drift_flutter: ^0.2.7

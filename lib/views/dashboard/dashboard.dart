@@ -1,9 +1,11 @@
 import 'dart:math';
 
 import 'package:defer_pointer/defer_pointer.dart';
+import 'package:jichanglianmeng/common/admob.dart';
 import 'package:jichanglianmeng/common/common.dart';
 import 'package:jichanglianmeng/controller.dart';
 import 'package:jichanglianmeng/enum/enum.dart';
+import 'package:jichanglianmeng/manager/ad_manager.dart';
 import 'package:jichanglianmeng/providers/providers.dart';
 import 'package:jichanglianmeng/state.dart';
 import 'package:jichanglianmeng/widgets/widgets.dart';
@@ -282,11 +284,20 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
                       },
                     ),
                   )
-                : Grid(
-                    crossAxisCount: columns,
-                    crossAxisSpacing: spacing,
-                    mainAxisSpacing: spacing,
-                    children: children,
+                : Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Grid(
+                        crossAxisCount: columns,
+                        crossAxisSpacing: spacing,
+                        mainAxisSpacing: spacing,
+                        children: children,
+                      ),
+                      if (AdMobConfig.isSupportedPlatform) ...[
+                        SizedBox(height: spacing),
+                        const AdNativeCard(),
+                      ],
+                    ],
                   ),
           ),
         ),

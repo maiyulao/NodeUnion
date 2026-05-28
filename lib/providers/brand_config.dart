@@ -1,5 +1,6 @@
 import 'package:jichanglianmeng/common/common.dart';
 import 'package:jichanglianmeng/enum/enum.dart';
+import 'package:jichanglianmeng/models/brand_config_ads.dart';
 import 'package:jichanglianmeng/models/brand_config_data.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -22,6 +23,8 @@ class BrandConfigState {
   String? get airportUrl => data?.airportUrl;
 
   String get airportName => data?.airportName ?? '';
+
+  BrandConfigAds? get ads => data?.ads;
 }
 
 @Riverpod(keepAlive: true)

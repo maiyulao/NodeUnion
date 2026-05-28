@@ -1,6 +1,7 @@
 import 'package:jichanglianmeng/common/common.dart';
 import 'package:jichanglianmeng/controller.dart';
 import 'package:jichanglianmeng/enum/enum.dart';
+import 'package:jichanglianmeng/manager/ad_manager.dart';
 import 'package:jichanglianmeng/manager/app_manager.dart';
 import 'package:jichanglianmeng/models/common.dart';
 import 'package:jichanglianmeng/providers/providers.dart';
@@ -77,7 +78,13 @@ class HomePage extends StatelessWidget {
                         removeLeft: true,
                         removeRight: true,
                         context: context,
-                        child: bottomNavigationBar,
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const AdBanner(),
+                            bottomNavigationBar,
+                          ],
+                        ),
                       ),
                     ],
                   ),

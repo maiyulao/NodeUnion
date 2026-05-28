@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1056380482639",
+    "project_id": "jichanglianmeng",
+    "storage_bucket": "jichanglianmeng.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1056380482639:android:7b4d79b4ea4f0cc05aa63a",
+        "android_client_info": {
+          "package_name": "com.jichanglianmeng.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAM6zs-pX-K5KD_Rza2Xu5DV4SA7FHtO_E"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

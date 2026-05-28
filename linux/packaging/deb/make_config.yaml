@@ -1,0 +1,28 @@
+display_name: 机场联盟
+package_name: jichanglianmeng
+maintainer:
+  name: jichanglianmeng
+  email: support@jichanglianmeng.app
+
+priority: optional
+section: x11
+installed_size: 6604
+essential: false
+icon: ./assets/images/icon.png
+
+dependencies:
+  - libayatana-appindicator3-dev
+  - libkeybinder-3.0-dev
+
+keywords:
+  - 机场联盟
+  - Clash
+  - ClashMeta
+  - Proxy
+
+generic_name: 机场联盟
+
+categories:
+  - Network
+
+startup_notify: true

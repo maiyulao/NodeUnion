@@ -1,0 +1,23 @@
+display_name: 机场联盟
+
+packager: jichanglianmeng
+packagerEmail: support@jichanglianmeng.app
+license: Other
+
+priority: optional
+section: x11
+installed_size: 6604
+essential: false
+icon: ./assets/images/icon.png
+
+keywords:
+  - 机场联盟
+  - Clash
+  - ClashMeta
+  - Proxy
+
+generic_name: 机场联盟
+
+group: Applications/Internet
+
+startup_notify: true

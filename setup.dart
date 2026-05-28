@@ -93,7 +93,7 @@ class Build {
     BuildItem(target: Target.android, arch: Arch.amd64, archName: 'x86_64'),
   ];
 
-  static String get appName => '机场联盟';
+  static String get appName => 'NodeUnion';
 
   static String get coreName => 'FlClashCore';
 

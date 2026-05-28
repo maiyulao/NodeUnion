@@ -289,8 +289,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "forceRestartCoreTip": MessageLookupByLibrary.simpleMessage(
       "コアを強制再起動してもよろしいですか？",
     ),
-    "forkCommunity": MessageLookupByLibrary.simpleMessage("空港連盟コミュニティ"),
-    "forkProject": MessageLookupByLibrary.simpleMessage("空港連盟（本プロジェクト）"),
+    "forkCommunity": MessageLookupByLibrary.simpleMessage("NodeUnionコミュニティ"),
+    "forkProject": MessageLookupByLibrary.simpleMessage("NodeUnion（本プロジェクト）"),
     "fourColumns": MessageLookupByLibrary.simpleMessage("4列"),
     "fruitSaladScheme": MessageLookupByLibrary.simpleMessage("フルーツサラダ"),
     "general": MessageLookupByLibrary.simpleMessage("一般"),

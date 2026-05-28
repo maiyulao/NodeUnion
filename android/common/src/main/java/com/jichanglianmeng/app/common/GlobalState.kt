@@ -28,7 +28,7 @@ object GlobalState : CoroutineScope by CoroutineScope(Dispatchers.Default) {
 
 
     fun log(text: String) {
-        Log.d("[机场联盟]", text)
+        Log.d("[NodeUnion]", text)
     }
 
     fun init(application: Application) {

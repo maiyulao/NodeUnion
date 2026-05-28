@@ -1,14 +1,14 @@
-display_name: 机场联盟
+display_name: NodeUnion
 
 icon: ./assets/images/icon.png
 
 keywords:
-  - 机场联盟
+  - NodeUnion
   - Clash
   - ClashMeta
   - Proxy
 
-generic_name: 机场联盟
+generic_name: NodeUnion
 
 categories:
   - Network

@@ -379,10 +379,10 @@ class MessageLookup extends MessageLookupByLibrary {
       "Are you sure you want to force restart the core?",
     ),
     "forkCommunity": MessageLookupByLibrary.simpleMessage(
-      "Airport Alliance Community",
+      "NodeUnion Community",
     ),
     "forkProject": MessageLookupByLibrary.simpleMessage(
-      "Airport Alliance (This Project)",
+      "NodeUnion (This Project)",
     ),
     "fourColumns": MessageLookupByLibrary.simpleMessage("Four columns"),
     "fruitSaladScheme": MessageLookupByLibrary.simpleMessage("FruitSalad"),

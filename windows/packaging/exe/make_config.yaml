@@ -1,9 +1,9 @@
 script_template: inno_setup.iss
 app_id: 728B3532-C74B-4870-9068-BE70FE12A3E6
 app_name: jichanglianmeng
-publisher: jichanglianmeng
-publisher_url: https://github.com/jichanglianmeng/jichanglianmeng
-display_name: 机场联盟
+publisher: NodeUnion
+publisher_url: https://github.com/nodeunion/nodeunion
+display_name: NodeUnion
 executable_name: jichanglianmeng.exe
 output_base_file_name: jichanglianmeng.exe
 setup_icon_file: ..\windows\runner\resources\app_icon.ico

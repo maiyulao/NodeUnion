@@ -9,7 +9,7 @@ import 'package:jichanglianmeng/enum/enum.dart';
 import 'package:jichanglianmeng/models/models.dart';
 import 'package:flutter/material.dart';
 
-const appName = '机场联盟';
+const appName = 'NodeUnion';
 const appHelperService = 'FlClashHelperService';
 const coreName = 'clash.meta';
 const browserUa =
@@ -58,8 +58,8 @@ const double dialogCommonWidth = 300;
 const originalRepository = 'chen08209/FlClash';
 const originalCoreBranch = 'FlClash';
 const originalTelegramUrl = 'https://t.me/FlClash';
-const forkRepository = 'jichanglianmeng/jichanglianmeng';
-const forkTelegramUrl = 'https://t.me/jichanglianmeng';
+const forkRepository = 'nodeunion/nodeunion';
+const forkTelegramUrl = 'https://t.me/nodeunion';
 const defaultExternalController = '127.0.0.1:9090';
 const maxMobileWidth = 600;
 const maxLaptopWidth = 840;

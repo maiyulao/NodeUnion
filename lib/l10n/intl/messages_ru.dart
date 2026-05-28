@@ -396,10 +396,10 @@ class MessageLookup extends MessageLookupByLibrary {
       "Вы уверены, что хотите принудительно перезапустить ядро?",
     ),
     "forkCommunity": MessageLookupByLibrary.simpleMessage(
-      "Сообщество Аэропорт Альянс",
+      "Сообщество NodeUnion",
     ),
     "forkProject": MessageLookupByLibrary.simpleMessage(
-      "Аэропорт Альянс (этот проект)",
+      "NodeUnion (этот проект)",
     ),
     "fourColumns": MessageLookupByLibrary.simpleMessage("Четыре столбца"),
     "fruitSaladScheme": MessageLookupByLibrary.simpleMessage("Фруктовый микс"),

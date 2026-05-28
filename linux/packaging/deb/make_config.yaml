@@ -1,4 +1,4 @@
-display_name: 机场联盟
+display_name: NodeUnion
 package_name: jichanglianmeng
 maintainer:
   name: jichanglianmeng
@@ -15,12 +15,12 @@ dependencies:
   - libkeybinder-3.0-dev
 
 keywords:
-  - 机场联盟
+  - NodeUnion
   - Clash
   - ClashMeta
   - Proxy
 
-generic_name: 机场联盟
+generic_name: NodeUnion
 
 categories:
   - Network

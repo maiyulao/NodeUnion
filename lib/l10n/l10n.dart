@@ -999,20 +999,20 @@ class AppLocalizations {
     );
   }
 
-  /// `Airport Alliance (This Project)`
+  /// `NodeUnion (This Project)`
   String get forkProject {
     return Intl.message(
-      'Airport Alliance (This Project)',
+      'NodeUnion (This Project)',
       name: 'forkProject',
       desc: '',
       args: [],
     );
   }
 
-  /// `Airport Alliance Community`
+  /// `NodeUnion Community`
   String get forkCommunity {
     return Intl.message(
-      'Airport Alliance Community',
+      'NodeUnion Community',
       name: 'forkCommunity',
       desc: '',
       args: [],

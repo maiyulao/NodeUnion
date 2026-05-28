@@ -1,4 +1,4 @@
-display_name: 机场联盟
+display_name: NodeUnion
 
 packager: jichanglianmeng
 packagerEmail: support@jichanglianmeng.app
@@ -11,12 +11,12 @@ essential: false
 icon: ./assets/images/icon.png
 
 keywords:
-  - 机场联盟
+  - NodeUnion
   - Clash
   - ClashMeta
   - Proxy
 
-generic_name: 机场联盟
+generic_name: NodeUnion
 
 group: Applications/Internet
 

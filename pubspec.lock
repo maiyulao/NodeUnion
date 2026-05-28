@@ -129,6 +129,14 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "4.0.6"
+  build_cli_annotations:
+    dependency: transitive
+    description:
+      name: build_cli_annotations
+      sha256: e563c2e01de8974566a1998410d3f6f03521788160a02503b0b1f1a46c7b3d95
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "2.1.1"
   build_config:
     dependency: transitive
     description:
@@ -521,6 +529,14 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "1.1.1"
+  fjs:
+    dependency: "direct main"
+    description:
+      name: fjs
+      sha256: "940ad03c132f224640f79256060beaca0123413b4fbb2ce2f6a8f9e704a3986a"
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "2.2.0"
   flutter:
     dependency: "direct main"
     description: flutter
@@ -598,15 +614,6 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "0.6.0"
-  flutter_js:
-    dependency: "direct main"
-    description:
-      path: "."
-      ref: c0e10a5dab0e22cd616ec92ae71471d76369cbfe
-      resolved-ref: c0e10a5dab0e22cd616ec92ae71471d76369cbfe
-      url: "https://github.com/chen08209/flutter_js"
-    source: git
-    version: "0.8.3"
   flutter_launcher_icons:
     dependency: "direct dev"
     description:
@@ -652,6 +659,14 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "3.0.3"
+  flutter_rust_bridge:
+    dependency: transitive
+    description:
+      name: flutter_rust_bridge
+      sha256: e87d6b9ee934dcd24a128ccb2bd91905d2d5fe5c06245d6a8f5477d4907a437a
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "2.12.0"
   flutter_svg:
     dependency: "direct main"
     description:
@@ -1626,14 +1641,6 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "0.4.1"
-  sync_http:
-    dependency: transitive
-    description:
-      name: sync_http
-      sha256: "7f0cd72eca000d2e026bcd6f990b81d0ca06022ef4e32fb257b30d3d1014a961"
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "0.3.1"
   synchronized:
     dependency: transitive
     description:

@@ -119,16 +119,16 @@ class AboutView extends StatelessWidget {
                 style: Theme.of(context).textTheme.labelLarge,
               ),
               const SizedBox(height: 8),
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Wrap(
-                  spacing: 24,
-                  children: [
-                    for (final contributor in _originalContributors)
-                      Avatar(contributor: contributor),
-                  ],
-                ),
-              ),
+              // SingleChildScrollView(
+              //   scrollDirection: Axis.horizontal,
+              //   child: Wrap(
+              //     spacing: 24,
+              //     children: [
+              //       for (final contributor in _originalContributors)
+              //         Avatar(contributor: contributor),
+              //     ],
+              //   ),
+              // ),
             ],
           ),
         ),

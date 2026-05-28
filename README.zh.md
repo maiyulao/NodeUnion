@@ -6,13 +6,15 @@
 
 官方 Telegram 频道：[t.me/NodeUnion](http://t.me/NodeUnion)
 
-| 平台 | 支持 |
-|------|------|
-| Android | ✅ |
-| macOS | ✅ |
-| Windows | ✅ |
-| Linux | ✅ |
-| iOS | 暂不支持 |
+
+| 平台      | 支持   |
+| ------- | ---- |
+| Android | ✅    |
+| macOS   | ✅    |
+| Windows | ✅    |
+| Linux   | ✅    |
+| iOS     | 暂不支持 |
+
 
 ## 特性
 
@@ -74,11 +76,13 @@ cp brand.plain.json.example brand.plain.json
 
 明文 JSON 字段说明：
 
-| 字段 | 类型 | 说明 |
-|------|------|------|
-| `airportName` | string | 机场显示名称（用于导航栏等） |
-| `airportUrl` | string | 机场门户 URL（`http` / `https`） |
-| `ads` | object | 可选；AdMob 单元 ID 与展示策略，默认 `enabled: false` |
+
+| 字段            | 类型     | 说明                                       |
+| ------------- | ------ | ---------------------------------------- |
+| `airportName` | string | 机场显示名称（用于导航栏等）                           |
+| `airportUrl`  | string | 机场门户 URL（`http` / `https`）               |
+| `ads`         | object | 可选；AdMob 单元 ID 与展示策略，默认 `enabled: false` |
+
 
 `ads` 子字段见 `lib/models/brand_config_ads.dart` 与 `brand.plain.json.example`。
 
@@ -145,12 +149,14 @@ flutter build apk --release --dart-define-from-file=env.json
 
 在已执行 `dart run setup.dart <platform>` 的前提下：
 
-| 平台 | 命令示例 |
-|------|----------|
+
+| 平台          | 命令示例                          |
+| ----------- | ----------------------------- |
 | Android APK | `dart run setup.dart android` |
-| Windows | `dart run setup.dart windows` |
-| Linux | `dart run setup.dart linux` |
-| macOS | `dart run setup.dart macos` |
+| Windows     | `dart run setup.dart windows` |
+| Linux       | `dart run setup.dart linux`   |
+| macOS       | `dart run setup.dart macos`   |
+
 
 `setup.dart` 会通过 [flutter_distributor](https://github.com/leanflutter/flutter_distributor) 打包对应产物（如 `apk`、`exe`、`deb`、`dmg` 等），并自动把 `env.json` 中的 `dart-define` 传入 Flutter 构建。
 

@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:ffi' as ffi;
 
 import 'package:animations/animations.dart';
 import 'package:dynamic_color/dynamic_color.dart';
@@ -12,9 +11,9 @@ import 'package:jichanglianmeng/providers/config.dart';
 import 'package:jichanglianmeng/providers/database.dart';
 import 'package:jichanglianmeng/widgets/dialog.dart';
 import 'package:jichanglianmeng/widgets/list.dart';
+import 'package:fjs/fjs.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_js/flutter_js.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -28,6 +27,7 @@ typedef UpdateTasks = List<FutureOr Function()>;
 
 class GlobalState {
   static GlobalState? _instance;
+  static bool _fjsInitialized = false;
   final navigatorKey = GlobalKey<NavigatorState>();
   Timer? timer;
   bool isPre = true;
@@ -56,8 +56,17 @@ class GlobalState {
   Future<ProviderContainer> init(int version) async {
     coreSHA256 = const String.fromEnvironment('CORE_SHA256');
     isPre = const String.fromEnvironment('APP_ENV') != 'stable';
+    await _initFjs();
     await _initDynamicColor();
     return await _initData(version);
+  }
+
+  Future<void> _initFjs() async {
+    if (_fjsInitialized) {
+      return;
+    }
+    await LibFjs.init();
+    _fjsInitialized = true;
   }
 
   Future<void> _initDynamicColor() async {
@@ -294,19 +303,35 @@ class GlobalState {
       config['proxy-providers'] = {};
     }
     final configJs = json.encode(config);
-    final runtime = getJavascriptRuntime();
-    final res = await runtime.evaluateAsync('''
-      $scriptContent
-      main($configJs)
-    ''');
-    if (res.isError) {
-      throw res.stringResult;
+    await _initFjs();
+    final engine = await JsEngine.create(
+      builtins: JsBuiltinOptions.essential(),
+    );
+    try {
+      await engine.initWithoutBridge();
+      final result = await engine.eval(
+        source: JsCode.code('''
+$scriptContent
+main($configJs)
+'''),
+      );
+      final value = result.value;
+      if (value is Map) {
+        return Map<String, dynamic>.from(value);
+      }
+      return config;
+    } catch (e) {
+      final text = e.toString();
+      const prefix = 'AnyhowException(';
+      if (text.startsWith(prefix) && text.endsWith(')')) {
+        throw text.substring(prefix.length, text.length - 1);
+      }
+      throw text;
+    } finally {
+      if (!engine.closed) {
+        await engine.close();
+      }
     }
-    final value = switch (res.rawResult is ffi.Pointer) {
-      true => runtime.convertValue<Map<String, dynamic>>(res),
-      false => Map<String, dynamic>.from(res.rawResult),
-    };
-    return value ?? config;
   }
 }
 

@@ -64,6 +64,9 @@ PODS:
     - FlutterMacOS
   - url_launcher_macos (0.0.1):
     - FlutterMacOS
+  - webview_flutter_wkwebview (0.0.1):
+    - Flutter
+    - FlutterMacOS
   - window_ext (0.0.1):
     - FlutterMacOS
   - window_manager (0.5.0):
@@ -88,6 +91,7 @@ DEPENDENCIES:
   - sqlite3_flutter_libs (from `Flutter/ephemeral/.symlinks/plugins/sqlite3_flutter_libs/darwin`)
   - tray_manager (from `Flutter/ephemeral/.symlinks/plugins/tray_manager/macos`)
   - url_launcher_macos (from `Flutter/ephemeral/.symlinks/plugins/url_launcher_macos/macos`)
+  - webview_flutter_wkwebview (from `Flutter/ephemeral/.symlinks/plugins/webview_flutter_wkwebview/darwin`)
   - window_ext (from `Flutter/ephemeral/.symlinks/plugins/window_ext/macos`)
   - window_manager (from `Flutter/ephemeral/.symlinks/plugins/window_manager/macos`)
 
@@ -134,6 +138,8 @@ EXTERNAL SOURCES:
     :path: Flutter/ephemeral/.symlinks/plugins/tray_manager/macos
   url_launcher_macos:
     :path: Flutter/ephemeral/.symlinks/plugins/url_launcher_macos/macos
+  webview_flutter_wkwebview:
+    :path: Flutter/ephemeral/.symlinks/plugins/webview_flutter_wkwebview/darwin
   window_ext:
     :path: Flutter/ephemeral/.symlinks/plugins/window_ext/macos
   window_manager:
@@ -161,6 +167,7 @@ SPEC CHECKSUMS:
   sqlite3_flutter_libs: f9114e4bbe1f2e03dd543373c53d23245982ca13
   tray_manager: 9064e219c56d75c476e46b9a21182087930baf90
   url_launcher_macos: 175a54c831f4375a6cf895875f716ee5af3888ce
+  webview_flutter_wkwebview: 29eb20d43355b48fe7d07113835b9128f84e3af4
   window_ext: cbf41f054296dcfb15a1cb53610ef3eab6311f13
   window_manager: e25faf20d88283a0d46e7b1a759d07261ca27575
 

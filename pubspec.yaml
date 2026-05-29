@@ -53,7 +53,10 @@ dependencies:
   webdav_client: ^1.2.2
   dio: ^5.8.0+1
   win32: ^5.5.1
-  re_editor: ^0.8.0
+  re_editor:
+    git:
+      url: https://github.com/chen08209/re-editor
+      ref: main
   re_highlight: ^0.0.3
   archive: ^4.0.7
   emoji_regex: ^0.0.5
@@ -85,6 +88,7 @@ dependencies:
   flutter_inappwebview: ^6.1.5
   flutter_native_splash: ^2.4.7
   fjs: ^2.2.0
+  firebase_core: ^4.9.0
 dev_dependencies:
   flutter_test:
     sdk: flutter

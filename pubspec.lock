@@ -949,6 +949,22 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "1.0.5"
+  isolate_contactor:
+    dependency: transitive
+    description:
+      name: isolate_contactor
+      sha256: "6ba8434ceb58238a1389d6365111a3efe7baa1c68a66f4db6d63d351cf6c3a0f"
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "4.1.0"
+  isolate_manager:
+    dependency: transitive
+    description:
+      name: isolate_manager
+      sha256: "22ed0c25f80ec3b5f21e3a55d060f4650afff33f27c2dff34c0f9409d5759ae5"
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "4.1.5+1"
   jni:
     dependency: transitive
     description:
@@ -1276,6 +1292,15 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "1.5.0"
+  re_editor:
+    dependency: "direct main"
+    description:
+      path: "."
+      ref: main
+      resolved-ref: "8f1c28514cc1730cffd5b927e715e8b83cc417c1"
+      url: "https://github.com/chen08209/re-editor"
+    source: git
+    version: "0.8.0"
   re_highlight:
     dependency: "direct main"
     description:

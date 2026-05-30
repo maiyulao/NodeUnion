@@ -47,4 +47,5 @@ export 'text.dart';
 export 'tray.dart';
 export 'utils.dart';
 export 'window.dart';
+export 'webview_environment.dart';
 export 'yaml.dart';

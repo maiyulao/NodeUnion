@@ -149,8 +149,8 @@ After running `dart run setup.dart <platform>`:
 |----------|-----------------|
 | Android APK | `dart run setup.dart android` |
 | Windows | `dart run setup.dart windows` |
-| Linux | `dart run setup.dart linux` |
 | macOS | `dart run setup.dart macos` |
+| Linux | `dart run setup.dart linux --arch <arm64 or amd64>` |
 
 `setup.dart` uses [flutter_distributor](https://github.com/leanflutter/flutter_distributor) to produce artifacts (`apk`, `exe`, `deb`, `dmg`, etc.) and passes `dart-define` values from `env.json` into the Flutter build.
 

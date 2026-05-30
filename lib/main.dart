@@ -18,6 +18,7 @@ Future<void> main() async {
       await MobileAds.instance.initialize();
     }
     final version = await system.version;
+    await initWebViewEnvironment();
     final container = await globalState.init(version);
     HttpOverrides.global = FlClashHttpOverrides();
     runApp(

@@ -15,14 +15,27 @@ class BuildLinuxResult extends BuildResult {
 
   String? _arch;
 
+  String? _archFromTargetPlatform() {
+    final targetPlatform = config.arguments['target-platform']?.toString();
+    if (targetPlatform == 'linux-arm64') {
+      return 'arm64';
+    }
+    if (targetPlatform == 'linux-x64') {
+      return 'x64';
+    }
+    return null;
+  }
+
   String get arch {
-    if (_arch == null) {
-      ProcessResult r = Process.runSync('uname', ['-m']);
-      if ('${r.stdout}'.trim() == 'aarch64') {
-        _arch = 'arm64';
-      } else {
-        _arch = 'x64';
-      }
+    _arch ??= _archFromTargetPlatform();
+    if (_arch != null) {
+      return _arch!;
+    }
+    ProcessResult r = Process.runSync('uname', ['-m']);
+    if ('${r.stdout}'.trim() == 'aarch64') {
+      _arch = 'arm64';
+    } else {
+      _arch = 'x64';
     }
     return _arch!;
   }

@@ -306,9 +306,26 @@ class Build {
     }
   }
 
-  static Future<void> buildHelper(Target target, String token) async {
+  static Future<void> buildHelper(
+    Target target,
+    String token,
+    Arch arch,
+  ) async {
+    final rustTarget = switch (arch) {
+      Arch.arm64 => 'aarch64-pc-windows-msvc',
+      Arch.amd64 => 'x86_64-pc-windows-msvc',
+      Arch.arm => throw UnsupportedError('Windows helper does not support arm'),
+    };
     await exec(
-      ['cargo', 'build', '--release', '--features', 'windows-service'],
+      [
+        'cargo',
+        'build',
+        '--release',
+        '--features',
+        'windows-service',
+        '--target',
+        rustTarget,
+      ],
       environment: {'TOKEN': token},
       name: 'build helper',
       workingDirectory: _servicesDir,
@@ -316,6 +333,7 @@ class Build {
     final outPath = join(
       _servicesDir,
       'target',
+      rustTarget,
       'release',
       'helper${target.executableExtensionName}',
     );
@@ -379,24 +397,31 @@ class BuildCommand extends Command {
   Target target;
 
   BuildCommand({required this.target}) {
-    if (target == Target.android || target == Target.linux) {
+    if (target == Target.android) {
       argParser.addOption(
         'arch',
         valueHelp: arches.map((e) => e.name).join(','),
-        help: 'The $name build desc',
+        help: 'Android ABI filter (optional)',
       );
     } else {
-      argParser.addOption('arch', help: 'The $name build archName');
+      argParser.addOption(
+        'arch',
+        valueHelp: 'amd64,arm64',
+        help:
+            'Target CPU architecture (default: host). '
+            'Cross-arch builds are supported on the native OS only.',
+      );
     }
     argParser.addOption(
       'out',
-      valueHelp: [if (target.same) 'app', 'core'].join(','),
-      help: 'The $name build arch',
+      valueHelp: ['app', 'core'].join(','),
+      help: 'Build output: app (default, package with env.json) or core (kernel only)',
     );
     argParser.addOption(
       'env',
       valueHelp: ['pre', 'stable'].join(','),
-      help: 'The $name build env',
+      help:
+          'Override APP_ENV in env.json. If omitted, keeps the value already in env.json.',
     );
   }
 
@@ -411,30 +436,195 @@ class BuildCommand extends Command {
       .map((e) => e.arch!)
       .toList();
 
-  Future<void> _buildEnvFile(String env, {String? coreSha256}) async {
-    final envFile = File(join(current, 'env.json'));
-    final data = <String, dynamic>{'APP_ENV': env};
+  static String flutterTargetPlatform(Target target, Arch arch) {
+    return switch (target) {
+      Target.macos =>
+        arch == Arch.arm64 ? 'darwin-arm64' : 'darwin-x64',
+      Target.windows =>
+        arch == Arch.arm64 ? 'windows-arm64' : 'windows-x64',
+      Target.linux => arch == Arch.arm64 ? 'linux-arm64' : 'linux-x64',
+      Target.android => throw UnsupportedError('Use android target map'),
+    };
+  }
+
+  Future<Arch> _resolveArch(String? archName) async {
+    if (archName != null) {
+      final matched =
+          arches.where((element) => element.name == archName).toList();
+      if (matched.isEmpty) {
+        throw 'Invalid arch "$archName" for ${target.name}. '
+            'Valid: ${arches.map((e) => e.name).join(", ")}';
+      }
+      return matched.first;
+    }
+    if (Platform.isMacOS || Platform.isLinux) {
+      final result = await Process.run('uname', ['-m']);
+      final machine = result.stdout.toString().trim();
+      if (machine == 'aarch64' || machine == 'arm64') {
+        return Arch.arm64;
+      }
+      return Arch.amd64;
+    }
+    if (Platform.isWindows) {
+      final hostArch =
+          Platform.environment['PROCESSOR_ARCHITECTURE']?.toUpperCase();
+      if (hostArch == 'ARM64') {
+        return Arch.arm64;
+      }
+      return Arch.amd64;
+    }
+    throw 'Cannot detect host architecture';
+  }
+
+  void _assertNativePlatform() {
+    if (!target.same) {
+      throw 'Cannot package ${target.name} on ${Platform.operatingSystem}. '
+          'Run on a ${target.name} host, or use --out=core to cross-build the core only.';
+    }
+  }
+
+  bool _supportsFlutterTargetPlatform(Target target) {
+    return target == Target.linux || target == Target.android;
+  }
+
+  Future<void> _assertFlutterPackageArch(Arch arch) async {
+    if (_supportsFlutterTargetPlatform(target)) {
+      return;
+    }
+    final hostArch = await _resolveArch(null);
+    if (arch != hostArch) {
+      throw 'Flutter stable cannot cross-build ${target.name} apps '
+          '(host: ${hostArch.name}, requested: ${arch.name}). '
+          'Run on a ${arch.name} ${target.name} machine, or use --out=core '
+          'to cross-build the Go core only.';
+    }
+  }
+
+  List<String> _distributorExtraArgs({
+    required String resolvedArchName,
+    required String? flutterPlatform,
+  }) {
+    final args = <String>['--description', resolvedArchName];
+    if (flutterPlatform != null && _supportsFlutterTargetPlatform(target)) {
+      args.addAll(['--build-target-platform', flutterPlatform]);
+    }
+    return args;
+  }
+
+  Future<void> _buildEnvFile({String? envOverride, String? coreSha256}) async {
+    final envFilePath = join(current, 'env.json');
+    final envFile = File(envFilePath);
+    final exampleFile = File(join(current, 'env.json.example'));
+    final data = <String, dynamic>{};
+
+    if (exampleFile.existsSync()) {
+      try {
+        final template = json.decode(await exampleFile.readAsString());
+        if (template is Map<String, dynamic>) {
+          data.addAll(template);
+        }
+      } catch (_) {}
+    }
 
     if (await envFile.exists()) {
       try {
         final existing = json.decode(await envFile.readAsString());
         if (existing is Map<String, dynamic>) {
-          for (final key in ['BRAND_CONFIG_URLS', 'BRAND_CONFIG_KEY']) {
-            final value = existing[key];
-            if (value is String && value.isNotEmpty) {
-              data[key] = value;
-            }
-          }
+          data.addAll(existing);
         }
       } catch (_) {}
     }
 
+    for (final key in [
+      'APP_ENV',
+      'BRAND_CONFIG_URLS',
+      'BRAND_CONFIG_KEY',
+      'CORE_SHA256',
+    ]) {
+      final value = Platform.environment[key];
+      if (value != null && value.isNotEmpty) {
+        data[key] = value;
+      }
+    }
+
+    if (envOverride != null) {
+      data['APP_ENV'] = envOverride;
+    } else if (data['APP_ENV'] == null || data['APP_ENV'].toString().isEmpty) {
+      data['APP_ENV'] = 'pre';
+    }
     if (coreSha256 != null) {
       data['CORE_SHA256'] = coreSha256;
     }
 
     await envFile.create(recursive: true);
-    await envFile.writeAsString(json.encode(data));
+    await envFile.writeAsString(
+      '${const JsonEncoder.withIndent('  ').convert(data)}\n',
+    );
+
+    print('Updated env.json at $envFilePath');
+    final brandUrls = data['BRAND_CONFIG_URLS']?.toString() ?? '';
+    final brandKey = data['BRAND_CONFIG_KEY']?.toString() ?? '';
+    if (brandUrls.isEmpty || brandKey.isEmpty) {
+      print(
+        'WARNING: BRAND_CONFIG_URLS or BRAND_CONFIG_KEY is missing. '
+        'Copy env.json.example to env.json and set your brand config before building the app.',
+      );
+    }
+  }
+
+  void _printFlutterBuildHint(Target target) {
+    print('');
+    print('Core-only build finished. env.json has been updated.');
+    print(
+      'To package the app with env.json on ${target.name}, run:\n'
+      '  dart run setup.dart ${target.name}'
+      '${target == Target.android ? '' : ' --arch <amd64|arm64>'}',
+    );
+  }
+
+  Future<void> _buildDistributor({
+    required Target target,
+    required String targets,
+    List<String> flutterBuildArgs = const [
+      'verbose',
+      'dart-define-from-file=env.json',
+    ],
+    List<String> extraArgs = const [],
+  }) async {
+    await Build.getDistributor();
+    final envFilePath = join(current, 'env.json');
+    if (!File(envFilePath).existsSync()) {
+      throw 'env.json not found at $envFilePath';
+    }
+
+    try {
+      final envData = json.decode(await File(envFilePath).readAsString());
+      if (envData is Map<String, dynamic>) {
+        print(
+          'Injecting dart-define from env.json: ${envData.keys.join(', ')}',
+        );
+      }
+    } catch (_) {}
+
+    final command = <String>[
+      'flutter_distributor',
+      'package',
+      '--skip-clean',
+      '--platform',
+      target.name,
+      '--targets',
+      targets,
+      '--flutter-build-args',
+      flutterBuildArgs.join(','),
+      ...extraArgs,
+    ];
+
+    await Build.exec(
+      command,
+      name: name,
+      workingDirectory: current,
+      runInShell: true,
+    );
   }
 
   Future<void> _getLinuxDependencies(Arch arch) async {
@@ -470,21 +660,6 @@ class BuildCommand extends Command {
     await Build.exec(Build.getExecutable('npm install -g appdmg'));
   }
 
-  Future<void> _buildDistributor({
-    required Target target,
-    required String targets,
-    String args = '',
-    required String env,
-  }) async {
-    await Build.getDistributor();
-    await Build.exec(
-      name: name,
-      Build.getExecutable(
-        'flutter_distributor package --skip-clean --platform ${target.name} --targets $targets --flutter-build-args=verbose,dart-define-from-file=env.json$args',
-      ),
-    );
-  }
-
   Future<String?> get systemArch async {
     if (Platform.isWindows) {
       return Platform.environment['PROCESSOR_ARCHITECTURE'];
@@ -498,17 +673,17 @@ class BuildCommand extends Command {
   @override
   Future<void> run() async {
     final mode = target == Target.android ? Mode.lib : Mode.core;
-    final String out = argResults?['out'] ?? (target.same ? 'app' : 'core');
+    final String out = argResults?['out'] ?? 'app';
     final archName = argResults?['arch'];
-    final env = argResults?['env'] ?? 'pre';
-    final currentArches = arches
-        .where((element) => element.name == archName)
-        .toList();
-    final arch = currentArches.isEmpty ? null : currentArches.first;
-
-    if (arch == null && target != Target.android) {
-      throw 'Invalid arch parameter';
-    }
+    final envOverride =
+        (argResults?.wasParsed('env') ?? false) ? argResults!['env'] as String : null;
+    final Arch? arch = target == Target.android && archName == null
+        ? null
+        : await _resolveArch(archName);
+    final resolvedArchName = arch?.name ?? 'all';
+    final flutterPlatform = arch == null || target == Target.android
+        ? null
+        : BuildCommand.flutterTargetPlatform(target, arch);
 
     final corePaths = await Build.buildCore(
       target: target,
@@ -518,39 +693,55 @@ class BuildCommand extends Command {
 
     String? coreSha256;
 
-    if (Platform.isWindows) {
+    if (Platform.isWindows && target == Target.windows) {
       coreSha256 = await Build.calcSha256(corePaths.first);
-      await Build.buildHelper(target, coreSha256);
+      await Build.buildHelper(target, coreSha256, arch!);
     }
-    await _buildEnvFile(env, coreSha256: coreSha256);
+    await _buildEnvFile(envOverride: envOverride, coreSha256: coreSha256);
     if (out != 'app') {
+      _printFlutterBuildHint(target);
       return;
+    }
+
+    _assertNativePlatform();
+    if (arch != null) {
+      await _assertFlutterPackageArch(arch);
+    }
+    if (flutterPlatform != null && _supportsFlutterTargetPlatform(target)) {
+      print(
+        'Building ${target.name} package for $resolvedArchName ($flutterPlatform)',
+      );
+    } else if (target != Target.android) {
+      print('Building ${target.name} package for $resolvedArchName (host arch)');
+    } else {
+      print('Building android package for $resolvedArchName');
     }
 
     switch (target) {
       case Target.windows:
-        _buildDistributor(
+        await _buildDistributor(
           target: target,
           targets: 'exe,zip',
-          args: ' --description $archName',
-          env: env,
+          extraArgs: _distributorExtraArgs(
+            resolvedArchName: resolvedArchName,
+            flutterPlatform: flutterPlatform,
+          ),
         );
         return;
       case Target.linux:
-        final targetMap = {Arch.arm64: 'linux-arm64', Arch.amd64: 'linux-x64'};
         final targets = [
           'deb',
           if (arch == Arch.amd64) 'appimage',
           if (arch == Arch.amd64) 'rpm',
         ].join(',');
-        final defaultTarget = targetMap[arch];
         await _getLinuxDependencies(arch!);
-        _buildDistributor(
+        await _buildDistributor(
           target: target,
           targets: targets,
-          args:
-              ' --description $archName --build-target-platform $defaultTarget',
-          env: env,
+          extraArgs: _distributorExtraArgs(
+            resolvedArchName: resolvedArchName,
+            flutterPlatform: flutterPlatform,
+          ),
         );
         return;
       case Target.android:
@@ -562,23 +753,28 @@ class BuildCommand extends Command {
         final defaultArches = [Arch.arm, Arch.arm64, Arch.amd64];
         final defaultTargets = defaultArches
             .where((element) => arch == null ? true : element == arch)
-            .map((e) => targetMap[e])
-            .toList();
-        _buildDistributor(
+            .map((e) => targetMap[e]!)
+            .join(',');
+        await _buildDistributor(
           target: target,
           targets: 'apk',
-          args:
-              ",split-per-abi --build-target-platform ${defaultTargets.join(",")}",
-          env: env,
+          flutterBuildArgs: const [
+            'verbose',
+            'dart-define-from-file=env.json',
+            'split-per-abi',
+          ],
+          extraArgs: ['--build-target-platform', defaultTargets],
         );
         return;
       case Target.macos:
         await _getMacosDependencies();
-        _buildDistributor(
+        await _buildDistributor(
           target: target,
           targets: 'dmg',
-          args: ' --description $archName',
-          env: env,
+          extraArgs: _distributorExtraArgs(
+            resolvedArchName: resolvedArchName,
+            flutterPlatform: flutterPlatform,
+          ),
         );
         return;
     }

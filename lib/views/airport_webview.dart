@@ -216,6 +216,7 @@ class _AirportWebViewState extends ConsumerState<AirportWebView> {
             LinearProgressIndicator(value: _progress),
           Expanded(
             child: InAppWebView(
+              webViewEnvironment: globalWebViewEnvironment,
               initialUrlRequest: URLRequest(url: WebUri(airportUrl)),
               initialSettings: InAppWebViewSettings(
                 javaScriptEnabled: true,

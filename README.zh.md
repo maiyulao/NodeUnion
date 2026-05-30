@@ -154,8 +154,8 @@ flutter build apk --release --dart-define-from-file=env.json
 | ----------- | ----------------------------- |
 | Android APK | `dart run setup.dart android` |
 | Windows     | `dart run setup.dart windows` |
-| Linux       | `dart run setup.dart linux`   |
 | macOS       | `dart run setup.dart macos`   |
+| Linux       | `dart run setup.dart linux --arch <arm64 or amd64>`   |
 
 
 `setup.dart` 会通过 [flutter_distributor](https://github.com/leanflutter/flutter_distributor) 打包对应产物（如 `apk`、`exe`、`deb`、`dmg` 等），并自动把 `env.json` 中的 `dart-define` 传入 Flutter 构建。
